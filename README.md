@@ -3,7 +3,7 @@
 A REST API that wraps FFmpeg for media processing operations. Built with Node.js, Hono, and BullMQ for reliable async job processing.
 
 <p align="center">
-  <img src="https://github.com/blueice0201/ffmpeg/blob/main/docs-preview.png?raw=true" alt="API Documentation Preview" width="800">
+  <img src="https://github.com/blueice0201/ffmpeg-docker/blob/main/docs-preview.png?raw=true" alt="API Documentation Preview" width="800">
 </p>
 
 ## Features
@@ -155,8 +155,8 @@ Every endpoint is fully documented with request/response schemas, validation rul
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/blueice0201/ffmpeg
-   cd ffmpeg
+   git clone https://github.com/blueice0201/ffmpeg-docker
+   cd ffmpeg-docker
    ```
 
 2. **Install dependencies**
@@ -210,6 +210,33 @@ Every endpoint is fully documented with request/response schemas, validation rul
 The `Dockerfile` builds a single image that runs the API server, FFmpeg worker, and web UI together (`npm run start:all`). FFmpeg binaries come from `ghcr.io/jrottenberg/ffmpeg` (default: `7.1-scratch`).
 
 `docker-compose.yml` in this repo only starts **Redis** for local development. For production, run the image below and point it at your Redis instance.
+
+### Automatic release (GitHub Actions → GHCR)
+
+The workflow at `.github/workflows/docker-publish.yml` builds and pushes to GitHub Container Registry automatically.
+
+| Trigger | Image tags pushed |
+| --- | --- |
+| Push to `main` | `latest`, `main`, commit SHA |
+| Push tag `v1.2.3` | `1.2.3`, `1.2`, `1`, `latest`, commit SHA |
+| Manual run (`workflow_dispatch`) | Same rules as the branch or tag you run it on |
+
+Image name: `ghcr.io/<owner>/<repo>` (for this repo: `ghcr.io/blueice0201/ffmpeg-docker`).
+
+Before the first run, ensure **Settings → Actions → General → Workflow permissions** allows read/write for `GITHUB_TOKEN` (needed to publish packages). No separate GHCR repository setup is required—the package is created on the first successful push.
+
+Release example:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Pull on the target host:
+
+```bash
+docker pull ghcr.io/blueice0201/ffmpeg-docker:1.0.0
+```
 
 ### Manual release
 
