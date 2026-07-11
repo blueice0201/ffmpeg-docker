@@ -7,6 +7,7 @@ import { execSync } from 'child_process';
 import path from 'path';
 import { LocalstackContainer, type StartedLocalStackContainer } from '@testcontainers/localstack';
 import { S3Client, CreateBucketCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { describeIntegration } from '~/test-utils/conditional';
 
 const TEST_DIR = path.join(process.cwd(), 'test-outputs', 'video-gif');
 const FIXTURES_DIR = path.join(process.cwd(), 'test-fixtures', 'video-gif');
@@ -161,7 +162,7 @@ describe('processVideoToGif', () => {
 
 const TEST_BUCKET = 'test-ffmpeg-bucket';
 
-describe('processVideoToGif - S3 Mode', () => {
+describeIntegration('processVideoToGif - S3 Mode', () => {
   let container: StartedLocalStackContainer;
   let s3Client: S3Client;
   let originalEnv: NodeJS.ProcessEnv;

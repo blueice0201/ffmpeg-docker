@@ -16,7 +16,7 @@
     "start:server": "node ./apps/server/dist/server.js",
     "start:worker": "node ./apps/worker/dist/worker.js",
     "test:app": "npm run test:app --workspaces --if-present",
-    "test:integration": "npm run test:integration -w @ffmpeg-rest/server",
+    "test:integration": "npm run test:integration -w @ffmpeg-rest/server && npm run test:integration -w @ffmpeg-rest/worker",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",

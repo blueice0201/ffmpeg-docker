@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from 'vitest';
+import { describeIntegration } from '~/test-utils/conditional';
 import { LocalstackContainer, type StartedLocalStackContainer } from '@testcontainers/localstack';
 import { S3Client, CreateBucketCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { writeFile, mkdir, rm } from 'fs/promises';
@@ -8,7 +9,7 @@ import IORedis from 'ioredis';
 const TEST_DIR = path.join(process.cwd(), 'test-outputs', 'storage');
 const TEST_BUCKET = 'test-ffmpeg-bucket';
 
-describe('Storage Utility', () => {
+describeIntegration('Storage Utility', () => {
   let container: StartedLocalStackContainer;
   let s3Client: S3Client;
   let originalEnv: NodeJS.ProcessEnv;
