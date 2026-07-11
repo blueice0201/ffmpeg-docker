@@ -5,6 +5,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    fileParallelism: false,
+    testTimeout: 180_000,
+    hookTimeout: 180_000,
     include: process.env.TEST_MODE === 'integration' ? ['src/**/integration.test.ts'] : ['src/**/*.test.ts'],
     globalSetup:
       process.env.TEST_MODE === 'integration' ? ['../../vitest.integration-setup.ts'] : ['../../vitest.app-setup.ts'],

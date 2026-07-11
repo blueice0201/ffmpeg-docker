@@ -34,8 +34,15 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Prepare test directories
+        run: mkdir -p /tmp/ffmpeg-rest
+
       - name: Test
         run: npm run test:app
+        env:
+          NODE_ENV: test
+          TEMP_DIR: /tmp/ffmpeg-rest
+          COMPOSE_FONT_AUTO_DOWNLOAD: 'true'
 
   build-and-push:
     needs: validate

@@ -8,6 +8,10 @@ import { uploadToS3 } from '@worker/utils/storage';
 import { composeSequential, composeTimeline } from './compose';
 
 async function reportJobProgress(job: Job<ConvertJobData>, percent: number): Promise<void> {
+  if (typeof job.updateProgress !== 'function') {
+    return;
+  }
+
   const rounded = Math.min(100, Math.max(0, Math.round(percent)));
   const current = typeof job.progress === 'number' ? job.progress : -1;
   if (rounded === current) {
