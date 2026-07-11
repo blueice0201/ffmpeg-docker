@@ -1,0 +1,33 @@
+node_modules
+**/dist
+.git
+.env
+.env.*
+!.env.example
+*.log
+coverage
+**/test-outputs
+**/test-fixtures
+.DS_Store
+
+# Tests and test infrastructure
+**/*.test.ts
+**/*integration.test.ts
+**/test-utils
+vitest*.ts
+apps/server/vitest.config.ts
+apps/worker/vitest.config.ts
+
+# Local dev / CI / release tooling
+.github
+.husky/pre-commit
+.husky/commit-msg
+.releaserc.json
+commitlint.config.js
+eslint.config.mjs
+.prettierrc.json
+.prettierignore
+docker-compose.yml
+
+# Docs and agent notes (not needed in image build)
+*.md

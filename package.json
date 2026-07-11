@@ -1,0 +1,62 @@
+{
+  "name": "ffmpeg-rest",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm exec concurrently -- --kill-others --names \"web,server,worker\" --prefix \"[{name}]\" --prefix-colors \"cyan,blue,green\" \"npm run dev:web\" \"npm run dev:server\" \"npm run dev:worker\"",
+    "dev:server": "npm run dev -w @ffmpeg-rest/server",
+    "dev:worker": "npm run dev -w @ffmpeg-rest/worker",
+    "dev:web": "npm run dev -w @ffmpeg-rest/web",
+    "build": "npm run build:server && npm run build:worker",
+    "build:server": "npm run build -w @ffmpeg-rest/server",
+    "build:worker": "npm run build -w @ffmpeg-rest/worker",
+    "start": "concurrently --names \"SERVER,WORKER\" --prefix-colors \"blue,green\" \"node ./apps/server/dist/server.js\" \"node ./apps/worker/dist/worker.js\"",
+    "start:all": "concurrently --names \"SERVER,WORKER,WEB\" --prefix-colors \"blue,green,cyan\" \"node ./apps/server/dist/server.js\" \"node ./apps/worker/dist/worker.js\" \"node ./apps/web/scripts/start.mjs\"",
+    "start:server": "node ./apps/server/dist/server.js",
+    "start:worker": "node ./apps/worker/dist/worker.js",
+    "test:app": "npm run test:app --workspaces --if-present",
+    "test:integration": "npm run test:integration -w @ffmpeg-rest/server",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "prepare": "node .husky/install.mjs"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "@eslint/js": "^9.37.0",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/github": "^12.0.6",
+    "@testcontainers/localstack": "^11.7.1",
+    "@testcontainers/redis": "^11.7.1",
+    "@types/archiver": "^6.0.3",
+    "@types/node": "^20.11.17",
+    "@types/tar": "^6.1.13",
+    "@vitest/coverage-v8": "^3.2.4",
+    "esbuild": "0.25.10",
+    "eslint": "^9.37.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "3.6.2",
+    "semantic-release": "^25.0.3",
+    "testcontainers": "^11.7.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
