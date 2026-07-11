@@ -46,5 +46,9 @@ export const COMPOSE_FONTS: readonly ComposeFontDefinition[] = [
 
 export function getComposeFontDefinition(fontId?: string): ComposeFontDefinition {
   const match = COMPOSE_FONTS.find((font) => font.id === fontId);
-  return match ?? COMPOSE_FONTS[0];
+  const fallback = COMPOSE_FONTS.find((font) => font.id === DEFAULT_COMPOSE_FONT_ID);
+  if (!fallback) {
+    throw new Error('No compose fonts configured');
+  }
+  return match ?? fallback;
 }

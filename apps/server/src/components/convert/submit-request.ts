@@ -16,19 +16,26 @@ export function collectConvertUploadedFiles(body: Record<string, unknown>): Map<
   return files;
 }
 
-export async function handleConvertSubmit(c: Context, expectedMode?: ComposeMode): Promise<Response> {
+export type ConvertSubmitHandlerResult =
+  | { ok: true; taskId: string; status: 'queued' }
+  | { ok: false; statusCode: 400 | 413 | 500; body: { error: string; message?: string } };
+
+export async function parseAndSubmitConvert(
+  c: Context,
+  expectedMode?: ComposeMode
+): Promise<ConvertSubmitHandlerResult> {
   try {
     const body = await c.req.parseBody();
     const manifestRaw = body['manifest'];
     if (typeof manifestRaw !== 'string') {
-      return c.json({ error: 'manifest is required and must be a JSON string' }, 400);
+      return { ok: false, statusCode: 400, body: { error: 'manifest is required and must be a JSON string' } };
     }
 
     let manifest: unknown;
     try {
       manifest = JSON.parse(manifestRaw);
     } catch {
-      return c.json({ error: 'manifest must be valid JSON' }, 400);
+      return { ok: false, statusCode: 400, body: { error: 'manifest must be valid JSON' } };
     }
 
     const uploadFlag = body['uploadToS3'];
@@ -42,18 +49,20 @@ export async function handleConvertSubmit(c: Context, expectedMode?: ComposeMode
     });
 
     if (!result.success) {
-      return c.json({ error: result.error }, result.statusCode);
+      return { ok: false, statusCode: result.statusCode, body: { error: result.error } };
     }
 
-    return c.json(
-      {
-        taskId: result.taskId,
-        status: result.status
-      },
-      202
-    );
+    return {
+      ok: true,
+      taskId: result.taskId,
+      status: result.status
+    };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return c.json({ error: 'Failed to queue convert task', message: errorMessage }, 500);
+    return {
+      ok: false,
+      statusCode: 500,
+      body: { error: 'Failed to queue convert task', message: errorMessage }
+    };
   }
 }

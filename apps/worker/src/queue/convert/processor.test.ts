@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, rmSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import type { Job } from 'bullmq';
+import { ComposeManifestSchema } from '@shared/queue/convert/schemas';
 import { processVideoConvert } from './processor';
 import { ensureComposeFontPath } from './font';
 
@@ -67,7 +68,7 @@ describe('Convert Processor', () => {
           clip: videoPath,
           slide: imagePath
         },
-        manifest: {
+        manifest: ComposeManifestSchema.parse({
           mode: 'sequential',
           output: {
             width: 640,
@@ -91,7 +92,7 @@ describe('Convert Processor', () => {
               style: { fontSize: 36, position: 'center' }
             }
           ]
-        }
+        })
       })
     );
 
@@ -123,7 +124,7 @@ describe('Convert Processor', () => {
           overlay: imagePath,
           voice: audioPath
         },
-        manifest: {
+        manifest: ComposeManifestSchema.parse({
           mode: 'timeline',
           duration: 2,
           output: {
@@ -164,7 +165,7 @@ describe('Convert Processor', () => {
               clips: [{ assetId: 'voice', start: 0, duration: 2, volume: 0.8 }]
             }
           ]
-        }
+        })
       })
     );
 
@@ -197,7 +198,7 @@ describe('Convert Processor', () => {
           overlay: imagePath,
           bgm: audioPath
         },
-        manifest: {
+        manifest: ComposeManifestSchema.parse({
           mode: 'timeline',
           output: {
             width: 640,
@@ -229,7 +230,7 @@ describe('Convert Processor', () => {
               clips: [{ assetId: 'bgm', start: 0, volume: 0.8, loop: true }]
             }
           ]
-        }
+        })
       })
     );
 
@@ -245,7 +246,7 @@ describe('Convert Processor', () => {
         outputPath: path.join(TEST_DIR, 'missing-output.mp4'),
         uploadToS3: false,
         assetPaths: { clip: path.join(FIXTURES_DIR, 'missing.avi') },
-        manifest: {
+        manifest: ComposeManifestSchema.parse({
           mode: 'sequential',
           output: {
             width: 320,
@@ -257,7 +258,7 @@ describe('Convert Processor', () => {
           },
           assets: [{ id: 'clip', type: 'video', field: 'clip' }],
           segments: [{ type: 'video', assetId: 'clip', keepAudio: false }]
-        }
+        })
       })
     );
 
@@ -284,7 +285,7 @@ describe('Convert Processor', () => {
           clip: videoPath,
           bgm: audioPath
         },
-        manifest: {
+        manifest: ComposeManifestSchema.parse({
           mode: 'sequential',
           output: {
             width: 640,
@@ -300,7 +301,7 @@ describe('Convert Processor', () => {
           ],
           segments: [{ type: 'video', assetId: 'clip', keepAudio: false }],
           audioTracks: [{ assetId: 'bgm', volume: 0.5, loop: true, start: 0.5, duration: 1.5 }]
-        }
+        })
       })
     );
 

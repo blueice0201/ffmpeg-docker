@@ -6,23 +6,49 @@ import {
   convertTaskRoute,
   convertTimelineRoute
 } from './schemas';
-import { handleConvertSubmit } from './submit-request';
-import { COMPOSE_MANIFEST_UPLOAD_NOTES, SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE, TIMELINE_COMPOSE_MANIFEST_EXAMPLE } from './openapi-examples';
+import { ComposeManifestDocumentationSchema } from './openapi-schemas';
+import { parseAndSubmitConvert } from './submit-request';
+import {
+  COMPOSE_MANIFEST_UPLOAD_NOTES,
+  SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE,
+  TIMELINE_COMPOSE_MANIFEST_EXAMPLE
+} from './openapi-examples';
 import { getConvertTask, readConvertTaskOutput } from '~/utils/task-query';
 
+function registerConvertSubmitRoute(
+  app: OpenAPIHono,
+  route: typeof convertRoute | typeof convertSequentialRoute | typeof convertTimelineRoute,
+  expectedMode?: 'sequential' | 'timeline'
+) {
+  app.openapi(route, async (c) => {
+    const result = await parseAndSubmitConvert(c, expectedMode);
+    if (!result.ok) {
+      return c.json(result.body, result.statusCode);
+    }
+
+    return c.json(
+      {
+        taskId: result.taskId,
+        status: result.status
+      },
+      202
+    );
+  });
+}
+
 export function registerConvertRoutes(app: OpenAPIHono) {
-  app.openapi(convertRoute, (c) => handleConvertSubmit(c));
-  app.openapi(convertSequentialRoute, (c) => handleConvertSubmit(c, 'sequential'));
-  app.openapi(convertTimelineRoute, (c) => handleConvertSubmit(c, 'timeline'));
+  registerConvertSubmitRoute(app, convertRoute);
+  registerConvertSubmitRoute(app, convertSequentialRoute, 'sequential');
+  registerConvertSubmitRoute(app, convertTimelineRoute, 'timeline');
 
   app.openapi(composeManifestDocRoute, (c) => {
     return c.json(
-      {
+      ComposeManifestDocumentationSchema.parse({
         notes: [...COMPOSE_MANIFEST_UPLOAD_NOTES],
         sequentialExample: SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE,
         timelineExample: TIMELINE_COMPOSE_MANIFEST_EXAMPLE,
         composeManifest: SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE
-      },
+      }),
       200
     );
   });

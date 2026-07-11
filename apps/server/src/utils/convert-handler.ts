@@ -4,10 +4,7 @@ import path from 'path';
 import { env } from '~/config/env';
 import { logger } from '~/config/logger';
 import { addJob, JobType } from '~/queue';
-import {
-  ComposeManifestSchema,
-  type ComposeManifest
-} from '@shared/queue/convert/schemas';
+import { ComposeManifestSchema, type ComposeManifest } from '@shared/queue/convert/schemas';
 
 export type ComposeMode = 'sequential' | 'timeline';
 
@@ -94,7 +91,7 @@ export function normalizeComposeManifest(
   }
 
   const record = manifest as Record<string, unknown>;
-  const mode = record.mode;
+  const mode = record['mode'];
 
   if (expectedMode) {
     if (mode === undefined || mode === null || mode === '') {

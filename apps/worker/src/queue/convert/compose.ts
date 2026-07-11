@@ -173,14 +173,14 @@ async function concatVideoSegments(
 async function mixAudioTracks(
   videoPath: string,
   outputPath: string,
-  clips: Array<{
+  clips: {
     inputPath: string;
     start: number;
     duration?: number;
     trimStart?: number;
     volume: number;
     loop?: boolean;
-  }>,
+  }[],
   totalDuration: number,
   progress?: FfmpegStepProgress
 ): Promise<void> {
@@ -198,8 +198,7 @@ async function mixAudioTracks(
     const inputIndex = index + 1;
     const delayMs = Math.round(clip.start * 1000);
     const trimStart = clip.trimStart ?? 0;
-    const playDuration =
-      clip.duration ?? (clip.loop ? Math.max(0.1, totalDuration - clip.start) : undefined);
+    const playDuration = clip.duration ?? (clip.loop ? Math.max(0.1, totalDuration - clip.start) : undefined);
     let chain = `[${inputIndex}:a]`;
     if (clip.loop) {
       chain += 'aloop=loop=-1:size=4800000,';
@@ -267,9 +266,7 @@ async function resolveSequentialSegmentDurations(
   return durations;
 }
 
-function sequentialNeedsAudioMix(
-  manifest: Extract<ComposeManifest, { mode: 'sequential' }>
-): boolean {
+function sequentialNeedsAudioMix(manifest: Extract<ComposeManifest, { mode: 'sequential' }>): boolean {
   if ((manifest.audioTracks?.length ?? 0) > 0) {
     return true;
   }
@@ -293,14 +290,14 @@ export async function composeSequential(
   const tracker = onProgress ? new ComposeProgressTracker(totalWeight, onProgress) : null;
 
   const segmentPaths: string[] = [];
-  const audioClips: Array<{
+  const audioClips: {
     inputPath: string;
     start: number;
     duration?: number;
     trimStart?: number;
     volume: number;
     loop?: boolean;
-  }> = [];
+  }[] = [];
 
   let timelineOffset = 0;
 
@@ -378,12 +375,7 @@ export async function composeSequential(
 
   const videoOnlyPath = path.join(workDir, 'video_only.mp4');
   const concatStep = tracker?.startStep(totalVideoDuration);
-  await concatVideoSegments(
-    segmentPaths,
-    workDir,
-    videoOnlyPath,
-    toFfmpegProgress(concatStep, totalVideoDuration)
-  );
+  await concatVideoSegments(segmentPaths, workDir, videoOnlyPath, toFfmpegProgress(concatStep, totalVideoDuration));
   tracker?.completeStep(totalVideoDuration);
 
   for (const track of manifest.audioTracks ?? []) {
@@ -456,7 +448,7 @@ async function resolveTimelineDuration(
 export async function composeTimeline(
   manifest: Extract<ComposeManifest, { mode: 'timeline' }>,
   assetPaths: AssetPaths,
-  workDir: string,
+  _workDir: string,
   outputPath: string,
   onProgress?: (percent: number) => void
 ): Promise<void> {
@@ -527,11 +519,16 @@ export async function composeTimeline(
     const clipWidth = clip.width ?? output.width;
     const clipHeight = clip.height ?? output.height;
     const scale = buildScaleFilter(clipWidth, clipHeight, clip.fit ?? 'contain', output.backgroundColor);
-    const clipDuration =
-      clip.type === 'image'
-        ? clip.duration
-        : clip.duration ??
-          (await probeDuration(assets.get(clip.assetId)!.path)) - (clip.trimStart ?? 0);
+    let clipDuration: number;
+    if (clip.type === 'image') {
+      clipDuration = clip.duration;
+    } else {
+      const asset = assets.get(clip.assetId);
+      if (!asset) {
+        throw new Error(`Missing asset for ${clip.assetId}`);
+      }
+      clipDuration = clip.duration ?? (await probeDuration(asset.path)) - (clip.trimStart ?? 0);
+    }
     const enable = `between(t\\,${clip.start}\\,${clip.start + clipDuration})`;
     const prepLabel = `[p${stepIndex}]`;
 
@@ -561,8 +558,7 @@ export async function composeTimeline(
     }
 
     const delayMs = Math.round(clip.start * 1000);
-    const playDuration =
-      clip.duration ?? (clip.loop ? Math.max(0.1, totalDuration - clip.start) : undefined);
+    const playDuration = clip.duration ?? (clip.loop ? Math.max(0.1, totalDuration - clip.start) : undefined);
     let chain = `[${inputIndex}:a]`;
     if (clip.loop) {
       chain += 'aloop=loop=-1:size=4800000,';

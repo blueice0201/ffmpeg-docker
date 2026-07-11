@@ -1,5 +1,5 @@
 export const SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE = {
-  mode: 'sequential',
+  mode: 'sequential' as const,
   output: {
     width: 1280,
     height: 720,
@@ -23,10 +23,10 @@ export const SEQUENTIAL_COMPOSE_MANIFEST_EXAMPLE = {
     }
   ],
   audioTracks: [{ assetId: 'bgm', volume: 0.5, loop: true, start: 0 }]
-} as const;
+};
 
 export const TIMELINE_COMPOSE_MANIFEST_EXAMPLE = {
-  mode: 'timeline',
+  mode: 'timeline' as const,
   duration: 10,
   output: {
     width: 1280,
@@ -70,7 +70,7 @@ export const TIMELINE_COMPOSE_MANIFEST_EXAMPLE = {
       clips: [{ assetId: 'bgm', start: 0, volume: 0.8, loop: true }]
     }
   ]
-} as const;
+};
 
 export const COMPOSE_MANIFEST_UPLOAD_NOTES = [
   'Submit manifest as a JSON string in the multipart field "manifest".',

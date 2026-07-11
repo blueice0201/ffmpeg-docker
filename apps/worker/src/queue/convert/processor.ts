@@ -3,7 +3,7 @@ import type { JobResult } from '..';
 import type { ConvertJobData } from '@shared/queue/convert/schemas';
 import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
-import { dirname } from 'path';
+import { basename, dirname } from 'path';
 import { uploadToS3 } from '@worker/utils/storage';
 import { composeSequential, composeTimeline } from './compose';
 
@@ -50,7 +50,7 @@ export async function processVideoConvert(job: Job<ConvertJobData>): Promise<Job
     }
 
     if (shouldUpload) {
-      const upload = await uploadToS3(outputPath, 'video/mp4');
+      const upload = await uploadToS3(outputPath, 'video/mp4', basename(outputPath));
       return {
         success: true,
         outputUrl: upload.url,
