@@ -2,20 +2,6 @@
 
 A REST API that wraps FFmpeg for media processing operations. Built with Node.js, Hono, and BullMQ for reliable async job processing.
 
-<p align="center">
-  <img src="https://github.com/blueice0201/ffmpeg-docker/blob/main/docs-preview.png?raw=true" alt="API Documentation Preview" width="800">
-</p>
-
-## Features
-
-Convert and process media files through simple HTTP endpoints:
-
-- **Video**: Convert any video to MP4, convert to animated GIF, extract audio tracks (mono/stereo), extract frames at custom FPS (compressed as ZIP/GZIP)
-- **Audio**: Convert any audio to MP3 or WAV
-- **Image**: Convert any image format to JPG, resize images while preserving format
-- **Media Info**: Probe any media file for metadata and stream information
-- **Video Compose**: Assemble multi-asset videos from a JSON manifest — sequential concatenation or timeline overlays with video, image, text, and audio tracks (including CJK subtitles)
-
 ## Video Compose (Convert API)
 
 The `/convert*` endpoints compose a final MP4 from multiple uploaded assets using a JSON **manifest**. Unlike the synchronous conversion endpoints above, compose jobs are **async**: submit returns `202` with a `taskId`, then poll status or download the result when complete.
