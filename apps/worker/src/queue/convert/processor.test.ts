@@ -30,9 +30,16 @@ function createTestWavFile(outputPath: string): void {
 }
 
 function createMockJob(data: Parameters<typeof processVideoConvert>[0]['data']): Job<typeof data> {
+  const state = { progress: -1 };
   return {
     id: 'test-convert-job',
-    data
+    data,
+    get progress() {
+      return state.progress;
+    },
+    updateProgress: async (percent: number) => {
+      state.progress = percent;
+    }
   } as Job<typeof data>;
 }
 
